@@ -19,24 +19,21 @@
 ```
 docker run -it -v /srv/openvpn:/etc/openvpn --rm metamic/openvpn ovpn_addroute -n 172.31.16.0 -m 255.255.240.0
 ```
-
-
-- If you want to pass all traffic via your VPN Server, Enable all traffic passes via this VPN
-```
-docker run -it -v /srv/openvpn:/etc/openvpn --rm metamic/openvpn ovpn_addroute -a def1
-```
-
 - Delete VPN route
 ```
 docker run -it -v /srv/openvpn:/etc/openvpn --rm metamic/openvpn ovpn_delroute -n 172.31.16.0 -m 255.255.240.0
 ```
 
+- If you want to pass all traffic via your VPN Server, Enable all traffic passes via this VPN
+```
+docker run -it -v /srv/openvpn:/etc/openvpn --rm metamic/openvpn ovpn_addroute -a def1
+```
 - Disable all traffic passes via this VPN
 ```
 docker run -it -v /srv/openvpn:/etc/openvpn --rm metamic/openvpn ovpn_delroute -a def1
 ```
 
-- Set option
+- Set option (login, otp, login_otp)
 If you enable login_otp then you can use [password] + [otp 6 digits]. 
 ```
 docker run -it -v /srv/openvpn:/etc/openvpn --rm metamic/openvpn ovpn_opt -e login
@@ -49,7 +46,7 @@ docker run -it -v /srv/openvpn:/etc/openvpn --rm metamic/openvpn ovpn_opt -e log
 docker run -it -v /srv/openvpn:/etc/openvpn --rm metamic/openvpn ovpn_genconfig -u <your_ip_address> -n 172.100.10.0 -m 255.255.255.0
 ```
 
-- initialize pki use easyrsa for authenticate 
+- initialize pki using easyrsa for authenticate 
 ```
 docker run -it -v /srv/openvpn:/etc/openvpn --rm metamic/openvpn ovpn_initpki
 ```
