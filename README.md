@@ -59,9 +59,11 @@ docker run -it -v /srv/openvpn:/etc/openvpn --rm metamic/openvpn ovpn_initpki
 docker run -it -v /srv/openvpn:/etc/openvpn --rm metamic/openvpn ovpn_mkclient user
 ```
 
-- if you use login authentication you can make linux user and delete user
+- if you use login authentication you needs to make linux user
 ```
 docker run -it -v /srv/openvpn:/etc/openvpn --rm metamic/openvpn ovpn_adduser user
+```
+```
 docker run -it -v /srv/openvpn:/etc/openvpn --rm metamic/openvpn ovpn_deluser user
 ```
 
