@@ -1,3 +1,4 @@
 # google otp
+auth optional pam_faildelay.so delay=3000000
 auth requisite pam_google_authenticator.so secret=/etc/openvpn/otp/${USER}.google_authenticator user=root
 account sufficient pam_permit.so
