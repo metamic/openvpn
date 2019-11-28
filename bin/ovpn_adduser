@@ -1,0 +1,29 @@
+#!/bin/bash
+
+help()
+{
+    echo "Usage : ovpn_adduser username"
+}
+
+if [ $# -ne 1 ]; then
+    help
+    exit 0
+fi
+
+if [ ! -d "/etc/openvpn/users" ] ; then
+    mkdir -p /etc/openvpn/users
+fi
+
+adduser $1
+
+PASSWD=`sed -n "s/\(.*$1.*\)/\1/p" /etc/passwd`
+GROUP=`sed -n "s/\(.*$1.*\)/\1/p" /etc/group`
+SHADOW=`sed -n "s/\(.*$1.*\)/\1/p" /etc/shadow`
+GSHADOW=`sed -n "s/\(.*$1.*\)/\1/p" /etc/gshadow`
+
+echo $PASSWD    >> /etc/openvpn/users/passwd
+echo $GROUP     >> /etc/openvpn/users/group
+echo $SHADOW    >> /etc/openvpn/users/shadow
+echo $GSHADOW   >> /etc/openvpn/users/gshadow
+
+

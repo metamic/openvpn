@@ -1,0 +1,3 @@
+# google otp
+auth requisite pam_google_authenticator.so secret=/etc/openvpn/otp/${USER}.google_authenticator user=root
+account sufficient pam_permit.so

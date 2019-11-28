@@ -1,0 +1,52 @@
+#!/bin/bash
+
+help()
+{
+    echo "Usage : ovpn_genconfig -u example.com -n 172.100.0.0 -m 255.255.0.0"
+    echo "-h : help"
+    echo "-u : OpenVPN server address"
+    echo "-n : VPN subnet network"
+    echo "-m : VPN subnet netmask"
+}
+ 
+if [ $# -eq 0 ]; then
+    help
+    exit 0
+fi
+
+if [ ! -d "/etc/openvpn/tmp" ] ; then
+    mkdir -p /etc/openvpn/tmp
+fi
+
+cp -f /openvpn.conf /etc/openvpn/openvpn.conf
+
+if [ -f "/etc/openvpn/tmp/ovpn_table.conf" ] ; then 
+    cat /etc/openvpn/tmp/ovpn_table.conf >> /etc/openvpn/openvpn.conf
+fi
+
+while getopts u:n:m: opt
+do
+    case $opt in
+        u)
+            ovpn_server=$OPTARG
+            sed -i "/export OVPN_SERVER=.*/d" /etc/openvpn/tmp/ovpn_config.sh
+            echo "export OVPN_SERVER=$ovpn_server" >> /etc/openvpn/tmp/ovpn_config.sh
+            ;;
+        n)
+            sed -i "/export OVPN_SUBNET=.*/d" /etc/openvpn/tmp/ovpn_config.sh
+            echo "export OVPN_SUBNET=$OPTARG" >> /etc/openvpn/tmp/ovpn_config.sh
+            sed -i "s/OVPN_SUBNET/$OPTARG/g" /etc/openvpn/openvpn.conf
+            ;;
+        m)
+            sed -i "/export OVPN_NETMASK=.*/d" /etc/openvpn/tmp/ovpn_config.sh
+            echo "export OVPN_NETMASK=$OPTARG" >> /etc/openvpn/tmp/ovpn_config.sh
+            sed -i "s/OVPN_NETMASK/$OPTARG/g" /etc/openvpn/openvpn.conf
+            ;;
+        # - other options
+        *)  
+            help
+            exit 0
+            ;;
+    esac
+done
+

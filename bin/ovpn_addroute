@@ -1,0 +1,52 @@
+#!/bin/bash
+
+help()
+{
+    echo "Usage     : ovpn_addroute -n network -m netmask"
+    echo "Example   : ovpn_addroute -n 172.31.16.0 -m 255.255.240.0"
+    echo "Example   : ovpn_addroute -a def1"
+    echo "-h        : help"
+    echo "-a        : all traffic passes via this VPN"
+    echo "-a params : def1"
+    echo "-n        : route network"
+    echo "-m        : route netmask"
+}
+ 
+if [ $# -eq 0 ]; then
+    help
+    exit 0
+fi
+
+if [ ! -d "/etc/openvpn/tmp" ] ; then
+    mkdir -p /etc/openvpn/tmp
+fi
+
+if [ ! -f "/etc/openvpn/tmp/ovpn_table.conf" ] ; then
+   cp /ovpn_table.conf /etc/openvpn/tmp/ovpn_table.conf
+fi
+
+while getopts a:n:m: opt
+do
+    case $opt in
+        a)
+            sed -i "s/# push \"redirect-gateway def1\"/push \"redirect-gateway $OPTARG\"/g" /etc/openvpn/tmp/ovpn_table.conf
+            exit 0
+            ;;
+        n)
+            NETWORK=$OPTARG
+            ;;
+        m)
+            NETMASK=$OPTARG
+            ;;
+        
+        # - other options
+        *)  
+            help
+            exit 0
+            ;;
+    esac
+done
+sed -i "/# route option/a push \"route $NETWORK $NETMASK\"" /etc/openvpn/tmp/ovpn_table.conf
+
+
+

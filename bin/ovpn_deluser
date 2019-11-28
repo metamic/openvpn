@@ -1,0 +1,24 @@
+#!/bin/bash
+
+help()
+{
+    echo "Usage : ovpn_deluser username"
+}
+
+if [ $# -ne 1 ]; then
+    help
+    exit 0
+fi
+
+if [ ! -d "/etc/openvpn/users" ] ; then
+    echo "$1 is not exist"
+    exit 0
+fi
+
+sed -i "/^$1\:/d" /etc/openvpn/users/passwd
+sed -i "/^$1\:/d" /etc/openvpn/users/group
+sed -i "/^$1\:/d" /etc/openvpn/users/shadow
+sed -i "/^$1\:/d" /etc/openvpn/users/gshadow
+
+
+

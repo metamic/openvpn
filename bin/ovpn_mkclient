@@ -1,0 +1,75 @@
+#!/bin/bash
+
+help()
+{
+    echo "Usage : ovpn_client user"
+}
+
+if [ $# -ne 1 ]; then
+    help
+    exit 0
+fi
+
+export PATH=$PATH:/usr/share/easy-rsa
+export EASY_RSA=/usr/share/easy-rsa
+export OPENSSL="openssl"
+export PKCS11TOOL="pkcs11-tool"
+export GREP="grep"
+export KEY_CONFIG=`$EASY_RSA/whichopensslcnf $EASY_RSA`
+export KEY_DIR="$EASY_RSA/keys"
+export PKCS11_MODULE_PATH="dummy"
+export PKCS11_PIN="dummy"
+export KEY_SIZE=2048
+export CA_EXPIRE=3650
+export KEY_EXPIRE=3650
+export KEY_COUNTRY="US"
+export KEY_PROVINCE="CA"
+export KEY_CITY="SanFrancisco"
+export KEY_ORG="Fort-Funston"
+export KEY_EMAIL="me@myhost.mydomain"
+export KEY_OU="MyOrganizationalUnit"
+export KEY_NAME="EasyRSA"
+
+# load env
+if [ -f "/etc/openvpn/tmp/ovpn_config.sh" ] ; then
+    source "/etc/openvpn/tmp/ovpn_config.sh"
+fi
+
+# clean up
+rm -rf /usr/share/easy-rsa/keys 
+/usr/share/easy-rsa/clean-all
+mkdir -p /usr/share/easy-rsa/keys/
+cp -r /etc/openvpn/pki/* /usr/share/easy-rsa/keys/
+
+# create client key
+/usr/share/easy-rsa/build-key $1
+
+# create client ovpn
+OUTPUT_DIR=/etc/openvpn/client
+BASE_CONFIG=/client.ovpn
+
+sed -i -e "1iremote $OVPN_SERVER 1194" $BASE_CONFIG
+
+if [ ! -d "$OUTPUT_DIR" ]; then
+        mkdir -p ${OUTPUT_DIR}
+fi
+cat ${BASE_CONFIG} \
+    <(echo -e '<ca>') \
+    ${KEY_DIR}/ca.crt \
+    <(echo -e '</ca>\n<cert>') \
+    ${KEY_DIR}/${1}.crt \
+    <(echo -e '</cert>\n<key>') \
+    ${KEY_DIR}/${1}.key \
+    <(echo -e '</key>\n<tls-auth>') \
+    ${KEY_DIR}/ta.key \
+    <(echo -e '</tls-auth>') \
+    > ${OUTPUT_DIR}/$1.ovpn
+
+# configure
+if [[ "$OVPN_LOGIN" == "true" ]] ; then
+    sed -i "s/# auth-user-pass/auth-user-pass/g" ${OUTPUT_DIR}/$1.ovpn
+fi
+
+# move new pki
+rm -r /etc/openvpn/pki
+mv /usr/share/easy-rsa/keys/ /etc/openvpn/pki

@@ -1,0 +1,39 @@
+#!/bin/bash
+
+# set env
+export PATH=$PATH:/usr/share/easy-rsa
+export EASY_RSA=/usr/share/easy-rsa
+export OPENSSL="openssl"
+export PKCS11TOOL="pkcs11-tool"
+export GREP="grep"
+export KEY_CONFIG=`$EASY_RSA/whichopensslcnf $EASY_RSA`
+export KEY_DIR="$EASY_RSA/keys"
+export PKCS11_MODULE_PATH="dummy"
+export PKCS11_PIN="dummy"
+export KEY_SIZE=2048
+export CA_EXPIRE=3650
+export KEY_EXPIRE=3650
+export KEY_COUNTRY="US"
+export KEY_PROVINCE="CA"
+export KEY_CITY="SanFrancisco"
+export KEY_ORG="Fort-Funston"
+export KEY_EMAIL="me@myhost.mydomain"
+export KEY_OU="MyOrganizationalUnit"
+export KEY_NAME="EasyRSA"
+
+# clean up
+rm -rf /usr/share/easy-rsa/keys 
+/usr/share/easy-rsa/clean-all 
+if [ -d /etc/openvpn/pki ]; then
+    rm -r /etc/openvpn/pki
+fi
+
+# build ca/server
+/usr/share/easy-rsa/build-ca
+/usr/share/easy-rsa/build-key-server server
+/usr/share/easy-rsa/build-dh
+cd /usr/share/easy-rsa/keys 
+openvpn --genkey --secret ta.key
+
+# move pki
+mv /usr/share/easy-rsa/keys/ /etc/openvpn/pki

@@ -1,0 +1,83 @@
+#!/bin/bash
+
+help()
+{
+    echo "Usage     : ovpn_opt -e <options>"
+    echo "Example   : ovpn_opt -e pam"
+    echo "Example   : ovpn_opt -d pam"
+    echo "-e        : enable options"
+    echo "-d        : disable options"
+    echo "optoins   : otp, login, login_otp"
+    echo "-h        : help"
+}
+ 
+if [ $# -eq 0 ]; then
+    help
+    exit 0
+fi
+
+if [ ! -d "/etc/openvpn/tmp" ] ; then
+    mkdir -p "/etc/openvpn/tmp"
+fi
+
+if [ ! -f "/etc/openvpn/tmp/ovpn_table.conf" ] ; then
+   cp /ovpn_table.conf /etc/openvpn/tmp/ovpn_table.conf
+fi
+
+if [ ! -f "/etc/openvpn/tmp/ovpn_config.sh" ] ; then
+    touch /etc/openvpn/tmp/ovpn_config.sh
+fi
+
+if [ -f "/etc/openvpn/tmp/ovpn_config.sh" ] ; then
+    sed -i "/export OVPN_LOGIN=.*/d" /etc/openvpn/tmp/ovpn_config.sh
+fi
+
+while getopts e:d:h: opt
+do
+    case $opt in
+        e)
+            PLUGIN="plugin \/usr\/lib\/openvpn\/openvpn\-plugin\-auth\-pam\.so"
+            if [[ "$OPTARG" == "otp" ]] ; then
+                sed -i "s/# $PLUGIN gotp/$PLUGIN gotp/g" /etc/openvpn/tmp/ovpn_table.conf
+                sed -i "/export OVPN_LOGIN=.*/d" /etc/openvpn/tmp/ovpn_config.sh
+                echo "export OVPN_LOGIN=true" >> /etc/openvpn/tmp/ovpn_config.sh
+            fi
+            if [[ "$OPTARG" == "login" ]] ; then
+                sed -i "s/# $PLUGIN login/$PLUGIN login/g" /etc/openvpn/tmp/ovpn_table.conf
+                sed -i "/export OVPN_LOGIN=.*/d" /etc/openvpn/tmp/ovpn_config.sh
+                echo "export OVPN_LOGIN=true" >> /etc/openvpn/tmp/ovpn_config.sh
+            fi
+            if [[ "$OPTARG" == "login_otp" ]] ; then
+                sed -i "s/# $PLUGIN login_gotp/$PLUGIN login_gotp/g" /etc/openvpn/tmp/ovpn_table.conf
+                sed -i "/export OVPN_LOGIN=.*/d" /etc/openvpn/tmp/ovpn_config.sh
+                echo "export OVPN_LOGIN=true" >> /etc/openvpn/tmp/ovpn_config.sh
+            fi
+            ;;
+        d)
+            PLUGIN="plugin \/usr\/lib\/openvpn\/openvpn\-plugin\-auth\-pam\.so"
+            if [[ "$OPTARG" == "otp" ]] ; then
+                sed -i "s/$PLUGIN gotp/# $PLUGIN gotp/g" /etc/openvpn/tmp/ovpn_table.conf
+                sed -i "/export OVPN_LOGIN=.*/d" /etc/openvpn/tmp/ovpn_config.sh
+                echo "export OVPN_LOGIN=false" >> /etc/openvpn/tmp/ovpn_config.sh
+            fi
+            if [[ "$OPTARG" == "login" ]] ; then
+                sed -i "s/$PLUGIN login/# $PLUGIN login/g" /etc/openvpn/tmp/ovpn_table.conf
+                sed -i "/export OVPN_LOGIN=.*/d" /etc/openvpn/tmp/ovpn_config.sh
+                echo "export OVPN_LOGIN=false" >> /etc/openvpn/tmp/ovpn_config.sh
+            fi
+            if [[ "$OPTARG" == "login_otp" ]] ; then
+                sed -i "s/$PLUGIN login_gotp/# $PLUGIN login_gotp/g" /etc/openvpn/tmp/ovpn_table.conf
+                sed -i "/export OVPN_LOGIN=.*/d" /etc/openvpn/tmp/ovpn_config.sh
+                echo "export OVPN_LOGIN=false" >> /etc/openvpn/tmp/ovpn_config.sh
+            fi
+            ;;
+        # - other options
+        *)  
+            help
+            exit 0
+            ;;
+    esac
+done
+
+
+
