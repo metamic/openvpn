@@ -96,5 +96,13 @@ you can see dockerized OpenVPN logs
 docker logs -f openvpn
 ```
 
+# Upgrade Openvpn
+you can upgrade easy using below code
+```
+docker pull metamic/openvpn
+docker stop openvpn && docker rm openvpn
+docker run -d --restart always -v /srv/openvpn:/etc/openvpn -p 1194:1194/udp --cap-add=NET_ADMIN -v /etc/localtime:/etc/localtime:ro --name openvpn metamic/openvpn
+```
+
 # References
 - https://github.com/kylemanna/docker-openvpn
