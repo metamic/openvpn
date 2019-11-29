@@ -64,6 +64,11 @@ docker run -it -v /srv/openvpn:/etc/openvpn --rm metamic/openvpn ovpn_mkclient u
 - if you use login authentication you needs to make linux user
 ```
 docker run -it -v /srv/openvpn:/etc/openvpn --rm metamic/openvpn ovpn_adduser user
+
+# we need remake OpenVPN yet.
+docker stop openvpn && docker rm openvpn
+docker run -d --restart always -v /srv/openvpn:/etc/openvpn -p 1194:1194/udp --cap-add=NET_ADMIN -v /etc/localtime:/etc/localtime:ro --name openvpn metamic/openvpn
+
 ```
 ```
 docker run -it -v /srv/openvpn:/etc/openvpn --rm metamic/openvpn ovpn_deluser user
@@ -101,8 +106,8 @@ you can see dockerized OpenVPN logs
 docker logs -f openvpn
 ```
 
-# Upgrade Openvpn
-you can upgrade easy using below code
+## Upgrade OpenVPN
+you can upgrade easy using below code. :)
 ```
 docker pull metamic/openvpn
 docker stop openvpn && docker rm openvpn
