@@ -15,6 +15,11 @@
 5. Create Authenticaiton
 6. Create Dockerized OpenVPN Server
 
+- First, you get metamic/openvpn docker image
+```
+docker pull metamic/openvpn
+```
+
 - Add VPN route
 ```
 docker run -it -v /srv/openvpn:/etc/openvpn --rm metamic/openvpn ovpn_addroute -n 172.31.16.0 -m 255.255.240.0
